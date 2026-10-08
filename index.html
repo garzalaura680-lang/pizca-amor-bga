@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Con una Pizca de Amor BGA - Prototipo</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;background:#f7f3ee;color:#333}
+header{background:#7b3f00;color:white;padding:18px 24px}
+header h1{margin:0;font-size:24px}.tag{font-size:13px;opacity:.9}
+nav{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#fff;position:sticky;top:0;z-index:2;box-shadow:0 2px 5px #bbb}
+nav button{border:0;padding:10px 13px;border-radius:8px;background:#eee;cursor:pointer}nav button:hover{background:#ddd}
+main{max-width:1100px;margin:auto;padding:20px}.section{display:none}.section.active{display:block}
+.card{background:#fff;border-radius:12px;padding:18px;margin:12px 0;box-shadow:0 1px 6px #ddd}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.product{border:1px solid #ddd;border-radius:10px;padding:14px}.product h3{margin:5px 0}
+button.primary{background:#7b3f00;color:#fff;border:0;padding:10px 14px;border-radius:7px;cursor:pointer}
+button.secondary{background:#eee;border:0;padding:8px 10px;border-radius:7px;cursor:pointer}
+.price{font-weight:bold;color:#7b3f00}.badge{display:inline-block;padding:4px 8px;border-radius:12px;background:#f1dfc8;font-size:12px}
+input,select{padding:9px;border:1px solid #ccc;border-radius:7px;width:100%;box-sizing:border-box;margin:5px 0 12px}
+table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left}th{background:#f1e5d8}
+.stars span{font-size:28px;cursor:pointer;color:#bbb}.stars span.selected{color:#f0a500}
+.total{font-size:20px;font-weight:bold;margin:12px 0}
+.promo{border-left:5px solid #7b3f00}
+small{color:#666}
+</style>
+</head>
+<body>
+<header><h1>Con una Pizca de Amor BGA</h1><div class="tag">Prototipo funcional del sistema de información • Bucaramanga</div></header>
+<nav>
+<button onclick="show('reco')">Recomendaciones</button><button onclick="show('menu')">Menú digital</button>
+<button onclick="show('combos')">Combos personalizados</button><button onclick="show('calif')">Calificar experiencia</button>
+<button onclick="show('calc')">Calculadora de precios</button><button onclick="show('promo')">Promociones</button>
+<button onclick="show('proveedores')">Proveedores</button>
+</nav>
+<main>
+<section id="reco" class="section active">
+<div class="card"><h2>1. Sistema de recomendación de productos</h2><p>Selecciona una preferencia:</p>
+<select id="pref" onchange="recommend()"><option value="">-- Elegir --</option><option value="hamburguesa">Hamburguesas</option><option value="papas">Papas y salchipapas</option><option value="pizza">Pizza</option><option value="bebida">Malteadas y jugos</option></select>
+<div id="recommendation"></div></div></section>
+
+<section id="menu" class="section">
+<div class="card"><h2>2. Menú digital interactivo</h2><div id="menuGrid" class="grid"></div></div></section>
+
+<section id="combos" class="section">
+<div class="card"><h2>3. Crear combos personalizados</h2><label>Producto principal</label><select id="mainProduct" onchange="calcCombo()"></select>
+<label>Acompañamiento</label><select id="side" onchange="calcCombo()"><option value="0|Sin acompañamiento">Sin acompañamiento</option><option value="6000|Papas">Papas + $6.000</option><option value="7000|Salchipapas">Salchipapas + $7.000</option></select>
+<label>Bebida</label><select id="drink" onchange="calcCombo()"><option value="0|Sin bebida">Sin bebida</option><option value="5000|Jugo natural">Jugo natural + $5.000</option><option value="7000|Malteada">Malteada + $7.000</option></select>
+<div class="total" id="comboTotal">$0</div><button class="primary" onclick="alert('Combo agregado al pedido')">Confirmar Combo</button></div></section>
+
+<section id="calif" class="section">
+<div class="card"><h2>4. Calificación de la experiencia</h2><p>Califica tu experiencia de 1 a 5 estrellas:</p>
+<div class="stars" id="stars"><span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span></div>
+<textarea id="comment" placeholder="Comentario (opcional)" style="width:100%;height:80px;margin-top:12px;padding:8px;border-radius:7px;border:1px solid #ccc;box-sizing:border-box;"></textarea><br><button class="primary" onclick="saveRating()">Enviar calificación</button><p id="ratingMsg"></p></div></section>
+
+<section id="calc" class="section">
+<div class="card"><h2>5. Calculadora de precios de producto</h2><label>Costo de ingredientes ($)</label><input id="cost" type="number" min="0" value="10000">
+<label>Otros costos ($)</label><input id="other" type="number" min="0" value="2000">
+<label>Margen de ganancia (%)</label><input id="margin" type="number" min="0" value="30">
+<button class="primary" onclick="priceCalc()">Calcular precio</button><div class="total" id="priceResult"></div></div></section>
+
+<section id="promo" class="section">
+<div class="card"><h2>6. Sistema de promociones</h2>
+<div class="promo card"><h3>Combo Pizca</h3><p>Producto principal + acompañamiento + bebida.</p><span class="badge">15% de Descuento los Jueves</span></div>
+<div class="promo card"><h3>Feliz Cumpleaños en BGA</h3><p>Muestra tu cédula y recibe un postre gratis por compras mayores a $30.000.</p><span class="badge">Válido todo el año</span></div>
+</div></section>
+
+<section id="proveedores" class="section">
+<div class="card"><h2>7. Control de Proveedores</h2>
+<table>
+<thead><tr><th>Proveedor</th><th>Contacto</th><th>Insumo Principal</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Distribuidora Avícola del Oriente</td><td>315 444 8899</td><td>Pollo y Huevos</td><td><span class="badge">Activo</span></td></tr>
+<tr><td>Fruver Real Bucaramanga</td><td>320 111 2233</td><td>Verduras y Papas</td><td><span class="badge">Activo</span></td></tr>
+<tr><td>Carnes El Corral BGA</td><td>310 777 6655</td><td>Carne de Res</td><td><span class="badge">Por pedir</span></td></tr>
+</tbody></table></div></section>
+</main>
+
+<script>
+// Base de datos de productos de ejemplo
+const productos = [
+    {id: 1, nombre: "Hamburguesa Clásica", tipo: "hamburguesa", precio: 18000, desc: "Carne artesanal, queso cheddar, vegetales frescos."},
+    {id: 2, nombre: "Hamburguesa Pizca Amor", tipo: "hamburguesa", precio: 24000, desc: "Doble carne, toceta crujiente, salsa de la casa."},
+    {id: 3, nombre: "Salchipapa Especial BGA", tipo: "papas", precio: 16000, desc: "Papa amarilla, salchicha premium, queso costeño rallado."},
+    {id: 4, nombre: "Pizza Personal Hawaiana", tipo: "pizza", precio: 15000, desc: "Jamón, piña calada y bastante queso mozzarella."},
+    {id: 5, nombre: "Malteada de Oreo", tipo: "bebida", precio: 9000, desc: "Crema de helado, galleta oreo y crema batida."}
+];
+
+// Cambiar de pestaña
+function show(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
+
+// Cargar Menú y Listas Desplegables al iniciar
+window.onload = function() {
+    const grid = document.getElementById('menuGrid');
+    const selectCombo = document.getElementById('mainProduct');
+    
+    productos.forEach(p => {
+        // Renderizar Menú Digital
+        grid.innerHTML += `<div class="product">
+            <h3>${p.nombre}</h3>
+            <p><small>${p.desc}</small></p>
+            <div class="price">$${p.precio.toLocaleString()}</div>
+        </div>`;
+        
+        // Cargar Opciones de Combos si es plato fuerte
+        if(p.tipo !== 'bebida' && p.tipo !== 'papas') {
+            selectCombo.innerHTML += `<option value="${p.precio}|${p.nombre}">${p.nombre} ($${p.precio.toLocaleString()})</option>`;
+        }
+    });
+    calcCombo();
+};
+
+// Sistema de recomendación
+function recommend() {
+    const pref = document.getElementById('pref').value;
+    const res = document.getElementById('recommendation');
+    if(!pref) { res.innerHTML = ""; return; }
+    
+    const filtrados = productos.filter(p => p.tipo === pref);
+    if(filtrados.length > 0) {
+        res.innerHTML = `<h4>Te recomendamos:</h4>` + filtrados.map(p => `<p>⭐ <strong>${p.nombre}</strong> - $${p.precio.toLocaleString()}<br><small>${p.desc}</small></p>`).join('');
+    } else {
+        res.innerHTML = "<p>Pronto añadiremos más opciones de esta categoría.</p>";
+    }
+}
+
+// Lógica de cálculo de combos personalizado
+function calcCombo() {
+    const main = document.getElementById('mainProduct').value.split('|');
+    const side = document.getElementById('side').value.split('|');
+    const drink = document.getElementById('drink').value.split('|');
+    
+    const total = parseInt(main[0]) + parseInt(side[0]) + parseInt(drink[0]);
+    document.getElementById('comboTotal').innerHTML = `Total Combo: $${total.toLocaleString()}`;
+}
+
+// Lógica de Estrellas de Calificación
+let ratingSeleccionado = 0;
+document.querySelectorAll('#stars span').forEach(star => {
+    star.onclick = function() {
+        ratingSeleccionado = this.getAttribute('data-v');
+        document.querySelectorAll('#stars span').forEach(s => {
+            s.classList.toggle('selected', s.getAttribute('data-v') <= ratingSeleccionado);
+        });
+    };
+});
+
+function saveRating() {
+    if(ratingSeleccionado === 0) {
+        document.getElementById('ratingMsg').innerHTML = "⚠️ Por favor selecciona una estrella.";
+        return;
+    }
+    document.getElementById('ratingMsg').innerHTML = `✅ ¡Gracias! Guardamos tu calificación de ${ratingSeleccionado} estrellas.`;
+    document.getElementById('comment').value = "";
+}
+
+// Calculadora de Precios de Venta
+function priceCalc() {
+    const cost = parseFloat(document.getElementById('cost').value) || 0;
+    const other = parseFloat(document.getElementById('other').value) || 0;
+    const margin = parseFloat(document.getElementById('margin').value) || 0;
+    
+    const costoTotal = cost + other;
